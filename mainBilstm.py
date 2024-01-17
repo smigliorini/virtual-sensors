@@ -10,10 +10,12 @@ from sklearn.metrics import (mean_absolute_error as mae,
 #FILE_MODELLO_KERAS = './dati/keras_st4_model.h5'
 FILE_DATI_CSV = './dati/Dataset_sens_4.csv'
 FILE_TEST_CSV = './dati/Test_sens_4.csv'
-FILE_MODELLO_KERAS ='./dati/my_model_BidirTreStrati.h5'
-time_lag = 7
+FILE_MODELLO_KERAS ='./dati/my_model.h5'
+# [2024-01-17] SARA DOPPIO
+# time_lag = 7
 epochs = 350
 time_lag = 6
+#time_lag = 3
 nunits = 256
 thisdropout = 0.2
 
@@ -45,19 +47,24 @@ def myMain():
     numfeatures = x_train.shape[2]
     hp = defineHyperParams(timesteps,numfeatures)
     mm = ModelManager(FILE_MODELLO_KERAS,hp)
-    if mm.isModelTrained() == False:
-        mm.trainModel(x_train,y_train)
+    #if mm.isModelTrained() == False:
+    #    mm.trainModel(x_train,y_train)
+    mm.trainModel(x_train, y_train)
     my_model = mm.getModel()
 
     #print(x_test[9])
     result = my_model.predict(x_test, batch_size=batch_size)
 
+    a = result[0];
 
-    predicted = dm.getPredictedNormalizer().inverse_transform(result)
-    y_test = dm.getPredictedNormalizer().inverse_transform(y_test)
+    # [2024-01-17] SARA
+    # predicted = dm.getPredictedNormalizer().inverse_transform(result)
+    # y_test = dm.getPredictedNormalizer().inverse_transform(y_test)
+    predicted = dm.getPredictedNormalizer().inverse_transform(result.reshape(len(result), len(result[0])))
+    y_test = dm.getPredictedNormalizer().inverse_transform(y_test.reshape(len(y_test), len(y_test[0])))
     print('predetto ', predicted)
     print('reale ', y_test)
-    vediamo = mape(y_test[0:len(predicted)], predicted)
+    vediamo = mape(y_test, predicted)
     print('sklearn.metrics.mape ', vediamo)
     return 'Finito main'
 

@@ -1,9 +1,11 @@
 import tensorflow as tf
 from pathlib import Path
+
+from keras.layers import Bidirectional
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout, LayerNormalization, Bidirectional
+from tensorflow.keras.layers import LSTM, Dense, Dropout, LayerNormalization
 from keras import backend as K
-from keras.optimizers import SGD, Adam
+from keras.optimizers import SGD
 from constants import *
 import sys
 
@@ -26,6 +28,26 @@ class ModelManager:
         self.__hyperparams = HyperParameters(hyperparams)
         self.__model = self.__initModel()
 
+    def __generateModel(self):
+        my_model = Sequential()
+        #my_model.add(Bidirectional(LSTM(units=256, return_sequences=True, input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        #my_model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        #my_model.add(Bidirectional(LSTM(units=64)))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        #my_model.add(Dense(units=1))
+        # custom_optimizer = Adam(learning_rate=0.0001)
+        my_model.add(Bidirectional(LSTM(units=self.__hyperparams.nunits, return_sequences=True,
+                          input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
+        my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Bidirectional(LSTM(units=self.__hyperparams.nunits, return_sequences=True)))
+        my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Dense(units=1))
+        custom_optimizer = SGD(learning_rate=0.01)
+        my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_percentage_error', metrics=['mape', 'mae', 'mse'])
+        return my_model
+
     def __initModel(self):
         my_file = Path(self.__filename)
         if my_file.is_file():
@@ -36,9 +58,10 @@ class ModelManager:
             my_model = self.__generateModel()
             return my_model
 
-    def trainModel(self,x_train,y_train):
-        history = self.__model.fit(x_train, y_train, epochs=self.__hyperparams.epochs, batch_size=self.__hyperparams.batch_size,
-                               validation_split=self.__hyperparams.validation_split)
+    def trainModel(self, x_train, y_train):
+        history = self.__model.fit(x_train, y_train, epochs=self.__hyperparams.epochs,
+                                   batch_size=self.__hyperparams.batch_size,
+                                   validation_split=self.__hyperparams.validation_split)
         self.__model.save(self.__filename)
         self.__isTrained = True
 
@@ -48,19 +71,6 @@ class ModelManager:
     def isModelTrained(self):
         return self.__isTrained
 
-
-    def __generateModel(self):
-        my_model = Sequential()
-        my_model.add(Bidirectional(LSTM(units=256, return_sequences=True, input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
-        my_model.add(Dropout(self.__hyperparams.dropout))
-        my_model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
-        my_model.add(Dropout(self.__hyperparams.dropout))
-        my_model.add(Bidirectional(LSTM(units=64, return_sequences=False)))
-        my_model.add(Dropout(self.__hyperparams.dropout))
-        my_model.add(Dense(units=1))
-        custom_optimizer = Adam(learning_rate=0.01)
-        my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_percentage_error', metrics=['mape', 'mae', 'mse'])
-        return my_model
 
     '''
         def __generateModel(self):

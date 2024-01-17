@@ -11,7 +11,8 @@ from sklearn.metrics import (mean_absolute_error as mae,
 FILE_DATI_CSV = './dati/Dataset_sens_4.csv'
 FILE_TEST_CSV = './dati/Test_sens_4.csv'
 FILE_MODELLO_KERAS ='./dati/my_model.h5'
-time_lag = 7
+# [2024-01-17] SARA DOPPIO
+# time_lag = 7
 epochs = 350
 time_lag = 6
 nunits = 256
@@ -54,8 +55,11 @@ def myMain():
 
     a = result[0];
 
-    predicted = dm.getPredictedNormalizer().inverse_transform(result)
-    y_test = dm.getPredictedNormalizer().inverse_transform(y_test)
+    # [2024-01-17] SARA
+    # predicted = dm.getPredictedNormalizer().inverse_transform(result)
+    # y_test = dm.getPredictedNormalizer().inverse_transform(y_test)
+    predicted = dm.getPredictedNormalizer().inverse_transform(result.reshape(len(result), len(result[0])))
+    y_test = dm.getPredictedNormalizer().inverse_transform(y_test.reshape(len(y_test), len(y_test[0])))
     print('predetto ', predicted)
     print('reale ', y_test)
     vediamo = mape(y_test, predicted)

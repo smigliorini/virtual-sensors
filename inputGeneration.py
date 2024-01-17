@@ -52,12 +52,12 @@ class DatasetManager:
             y.append(dataset[i][seq_length - 1:])
         return np.array(x), np.array(y)
 
-    def __create_base_input(self, time_steps):
+    def __create_base_input(self, dataset, time_steps):
         # reshape the data: the input of the LSTM model is a 3D array of shape = (samples, time_steps, features ) where
         # samples = the number of time-series (or sequences)
         # time_steps = the number of instants in each time-series
         # features = the number of elements in each item of the sequence
-        x, y = self.__create_sequences(self.__normalizeddataset, len(self.__data_header))
+        x, y = self.__create_sequences(dataset, len(self.__data_header))
         # check if the dimension are compatible!
         samples = int(x.shape[0] / time_steps)
         x = x[:samples * time_steps]
@@ -70,12 +70,12 @@ class DatasetManager:
         return x, y
 
 
-    def create_input_with_shuffle(self, timesteps):
-        x, y = self.__create_base_input(timesteps)
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=23)
-        print(LOG_SHAPE_OF_MSG, LOG_TRAIN_WORD_MSG, LOG_DATA_WORD_MSG, ': ', x_train.shape)
-        print(LOG_SHAPE_OF_MSG, LOG_TRAIN_WORD_MSG, LOG_VALUES_WORD_MSG, ': ', y_train.shape)
-        return x_train, x_test, y_train, y_test
+    #def create_input_with_shuffle(self, timesteps):
+    #    x, y = self.__create_base_input(timesteps)
+    #    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=23)
+    #    print(LOG_SHAPE_OF_MSG, LOG_TRAIN_WORD_MSG, LOG_DATA_WORD_MSG, ': ', x_train.shape)
+    #    print(LOG_SHAPE_OF_MSG, LOG_TRAIN_WORD_MSG, LOG_VALUES_WORD_MSG, ': ', y_train.shape)
+    #    return x_train, x_test, y_train, y_test
 
     def __create_dataset(self,dataset,look_back):
         x, y = self.__create_sequences(dataset, len(self.__data_header))
@@ -90,13 +90,18 @@ class DatasetManager:
         train_size = int(len(self.__normalizeddataset) * 0.8)
         test_size = len(self.__normalizeddataset) - train_size
         train = self.__normalizeddataset[0:train_size, :]
-        test = self.__normalizeddataset[test_size:len(self.__normalizeddataset)]
+        # [MOD 2024-01-17] SARA così è sbagliato!!!
+        #test = self.__normalizeddataset[test_size:len(self.__normalizeddataset)]
+        test = self.__normalizeddataset[len(self.__normalizeddataset)-test_size:]
         # reshape into X=t and Y=t+1
-        trainX, trainY = self.__create_dataset(train, look_back)
-        testX, testY = self.__create_dataset(test, look_back)
+        #trainX, trainY = self.__create_dataset(train, look_back)
+        #testX, testY = self.__create_dataset(test, look_back)
+        # [2024-01-17] SARA
+        trainX, trainY = self.__create_base_input( train, look_back )
+        testX, testY = self.__create_base_input( test, look_back)
         # reshape input to be [samples, time steps, features]
-        trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], len(self.__data_header)-1))
-        testX = np.reshape(testX, (testX.shape[0], testX.shape[1], len(self.__data_header)-1))
+        #trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], len(self.__data_header)-1))
+        #testX = np.reshape(testX, (testX.shape[0], testX.shape[1], len(self.__data_header)-1))
         return trainX,testX,trainY,testY
 
 

@@ -1,5 +1,7 @@
 import tensorflow as tf
 from pathlib import Path
+
+from keras.layers import Bidirectional
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, LayerNormalization
 from keras import backend as K
