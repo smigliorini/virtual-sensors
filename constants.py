@@ -1,51 +1,15 @@
-filenamebase = 'Tutti_i_valori_CON_MISSING_VALUES_per_Sens0'
-dir_modelli = 'modelli'
-dir_esiti = 'esiti'
-dir_dati = 'dati'
+from header_names import *
+DIR_MODELLI = 'modelli'
+DIR_ESITI = 'esiti'
+DIR_DATI = 'dati'
+CSV_BASE_NAME='Dataset_sens_'
 data_header_index = 'timestamp_normalizzato'
-data_header = [
-    'distanza_da_centralina_cm',
- #   'angolo_gradi_verso_CN0',
-    'anno_acquisizione',
-    'mese_acquisizione',
-    'settimana_acquisizione_su_anno',
-    'giorno_acquisizione_su_anno',
-    'giorno_acquisizione_su_mese',
-    'giorno_acquisizione_su_settimana',
-    'ora_acquisizione',
-    'timestamp_normalizzato',
-    'evja_temp',
-    'Barometer_HPa',
-    'Temp__C',
-    'HighTemp__C',
-    'LowTemp__C',
-    'Hum__',
-    'DewPoint__C',
-    'WetBulb__C',
-    'WindSpeed_Km_h',
-    'WindDirection_',
-    'WindRun_Km',
-    'HighWindSpeed_Km_h',
-    'HighWindDirection_',
-    'WindChill__C',
-    'HeatIndex__C',
-    'THWIndex__C',
-    'THSWIndex__C',
-    'Rain_Mm',
-    'RainRate_Mm_h',
-    'SolarRad_W_m_2',
-    'SolarEnergy_Ly',
-    'HighSolarRad_W_m_2',
-    'ET_Mm',
-    'UVIndex_',
-    'UVDose_MEDs_',
-    'HighUVIndex_',
-    'HeatingDegreeDays',
-    'CoolingDegreeDays',
-    'Humidity__RH_',
-    'Solar_klux_',
-    'target'
-    ]
+data_headers = {'base': data_header_base,
+               'esteso': data_header_esteso,
+               'meno_tempo':data_header_con_meno_tempo,
+               'senza_distanza':data_header_senza_distanza,
+               'senza_evja':data_header_senza_evja}
+data_header = data_header_base
 ###########################################################################
 DROPOUT_LABEL ='dropout'
 NUNITS_LABEL = 'nunits'
@@ -70,8 +34,12 @@ THIS_MODEL_LABEL = 'thismodel'
 BEST_ONE_LABEL = 'bestOne'
 EVALUATION_METRIC_LABEL = 'evalMetric'
 LSTM_MODEL_LABEL = 'LSTM_model'
+DATADESCR_LABEL = 'dataset'
 UNDERSCORE ='_'
+TWOUNDERSCORE ='__'
 CSV_EXTENSION = '.csv'
+SUFFISSO_MODELLO_KERAS='.h5'
+
 #
 CHOSEN_LOSS = 'mean_absolute_error'
 MAPE_LABEL = 'mape'

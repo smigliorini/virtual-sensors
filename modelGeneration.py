@@ -19,14 +19,26 @@ class HyperParameters:
         self.batch_size = hyperparameters.get(BATCH_SIZE_LABEL)
         self.validation_split = hyperparameters.get(VALIDATION_SPLIT_LABEL)
         self.epochs = hyperparameters.get(EPOCHS_LABEL)
+        self.numlayers =  hyperparameters.get(NUMLAYERS_LABEL)
+        self.datadescr =  hyperparameters.get(DATADESCR_LABEL)
+
+    def getFileNamePart(self):
+        filenamePart = TWOUNDERSCORE + NUMLAYERS_LABEL+ UNDERSCORE + str(self.numlayers)
+        filenamePart = filenamePart + TWOUNDERSCORE + NUNITS_LABEL + UNDERSCORE + str(self.nunits)
+        filenamePart = filenamePart + TWOUNDERSCORE + EPOCHS_LABEL + UNDERSCORE + str(self.epochs)
+        filenamePart = filenamePart + TWOUNDERSCORE + DROPOUT_LABEL + UNDERSCORE + str(self.dropout)
+        filenamePart = filenamePart + TWOUNDERSCORE + DATADESCR_LABEL + UNDERSCORE + str(self.datadescr)
+        filenamePart = filenamePart + TWOUNDERSCORE + NUMFEATURES_LABEL + UNDERSCORE + str(self.numfeatures)
+        return filenamePart
+
 
 class ModelManager:
 
-    def __init__(self,filename,hyperparams):
+    def __init__(self,sensor,hyperparams,reTrain=False,dirModelli='modelli'):
         self.__isTrained = False
-        self.__filename = filename
         self.__hyperparams = HyperParameters(hyperparams)
-        self.__model = self.__initModel()
+        self.__filename = self.__composeFileName(sensor,dirModelli)
+        self.__model = self.__initModel(reTrain)
 
     def __generateModel(self):
         my_model = Sequential()
@@ -42,15 +54,22 @@ class ModelManager:
 
         return my_model
 
-    def __initModel(self):
+    def __initModel(self,reTrain):
         my_file = Path(self.__filename)
         if my_file.is_file():
             my_model = tf.keras.models.load_model(self.__filename)
             self.__isTrained = True
+            if reTrain:
+                self.__isTrained = False
             return my_model
         else:
             my_model = self.__generateModel()
             return my_model
+
+    def __composeFileName(self,sensor,dirModelli):
+        filename = dirModelli + '/'+ LSTM_MODEL_LABEL + UNDERSCORE + SENSOR_LABEL + UNDERSCORE + str(sensor) + UNDERSCORE + self.__hyperparams.getFileNamePart()
+        filename = filename + SUFFISSO_MODELLO_KERAS
+        return filename
 
     def trainModel(self,x_train,y_train):
         history = self.__model.fit(x_train, y_train, epochs=self.__hyperparams.epochs, batch_size=self.__hyperparams.batch_size,
@@ -60,6 +79,9 @@ class ModelManager:
 
     def getModel(self):
         return self.__model
+
+    def getFileNamePartFromHyperParams(self):
+        return self.__hyperparams.getFileNamePart()
 
     def isModelTrained(self):
         return self.__isTrained
