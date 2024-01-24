@@ -1,3 +1,5 @@
+import random
+
 from sklearn.model_selection import train_test_split
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -102,6 +104,29 @@ class DatasetManager:
         # reshape input to be [samples, time steps, features]
         #trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], len(self.__data_header)-1))
         #testX = np.reshape(testX, (testX.shape[0], testX.shape[1], len(self.__data_header)-1))
+
+        return trainX,testX,trainY,testY
+
+
+    # Sara: random generation of training and test sets
+    def create_input_from_top_shuffle(self, look_back):
+        # generate the sequences
+        x, y = self.__create_base_input(self.__normalizeddataset, look_back)
+
+        # shuffle the lists with same order
+        zipped = list(zip(x, y))
+        random.Random(40938233124).shuffle(zipped)
+        x, y = zip(*zipped)
+        x = np.array(x)
+        y = np.array(y)
+
+        # split into train and test sets
+        train_size = int(len(x) * 0.8)
+
+        trainX = x[0:train_size]
+        trainY = y[0:train_size]
+        testX = x[train_size:]
+        testY = y[train_size:]
         return trainX,testX,trainY,testY
 
 

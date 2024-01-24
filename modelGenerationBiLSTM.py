@@ -5,7 +5,7 @@ from keras.layers import Bidirectional
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, LayerNormalization
 from keras import backend as K
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adam
 from constants import *
 import sys
 
@@ -30,22 +30,21 @@ class ModelManager:
 
     def __generateModel(self):
         my_model = Sequential()
-        #my_model.add(Bidirectional(LSTM(units=256, return_sequences=True, input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
+        my_model.add(Bidirectional(LSTM(units=256, return_sequences=True, input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
         #my_model.add(Dropout(self.__hyperparams.dropout))
-        #my_model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
+        my_model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
         #my_model.add(Dropout(self.__hyperparams.dropout))
-        #my_model.add(Bidirectional(LSTM(units=64)))
+        my_model.add(Bidirectional(LSTM(units=64, return_sequences=True)))
         #my_model.add(Dropout(self.__hyperparams.dropout))
-        #my_model.add(Dense(units=1))
-        # custom_optimizer = Adam(learning_rate=0.0001)
-        my_model.add(Bidirectional(LSTM(units=self.__hyperparams.nunits, return_sequences=True,
-                          input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
-        my_model.add(Dropout(self.__hyperparams.dropout))
-        my_model.add(Bidirectional(LSTM(units=self.__hyperparams.nunits, return_sequences=True)))
-        my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Bidirectional(LSTM(units=32, return_sequences=False)))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
         my_model.add(Dense(units=1))
-        custom_optimizer = SGD(learning_rate=0.01)
-        my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_percentage_error', metrics=['mape', 'mae', 'mse'])
+        custom_optimizer = Adam(learning_rate=0.0001)
+        #my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_percentage_error', metrics=['mape', 'mae', 'mse'])
+        #my_model.compile(optimizer=custom_optimizer, loss='mean_squared_error',
+        #                 metrics=['mape', 'mae', 'mse'])
+        my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_error',
+                         metrics=['mape', 'mae', 'mse'])
         return my_model
 
     def __initModel(self):

@@ -11,16 +11,22 @@ from sklearn.metrics import (mean_absolute_error as mae,
 FILE_DATI_CSV = './dati/Dataset_sens_4.csv'
 FILE_TEST_CSV = './dati/Test_sens_4.csv'
 FILE_MODELLO_KERAS ='./dati/my_model.h5'
-# [2024-01-17] SARA DOPPIO
-# time_lag = 7
-epochs = 350
-time_lag = 6
-#time_lag = 3
-nunits = 256
-thisdropout = 0.2
 
-batch_size = 1
-validation_split = 0.1
+epochs = 400
+time_lag = 7
+nunits = 256
+#thisdropout = 0.2
+thisdropout = 0.0
+
+shuffle = True
+
+# with shuffled data 64 is better
+if shuffle:
+    batch_size = 64
+else:
+    batch_size = 32
+
+validation_split = 0.2
 
 def defineHyperParams(timesteps, numfeatures):
     hyperparameterValues = {
@@ -41,7 +47,10 @@ def myMain():
     df = fm.getDataFrame()
     dm = DatasetManager(df,data_header,data_header_index)
 
-    [x_train, x_test, y_train, y_test] = dm.create_input_from_top(time_lag)
+    if shuffle:
+        [x_train, x_test, y_train, y_test] = dm.create_input_from_top_shuffle(time_lag)
+    else:
+        [x_train, x_test, y_train, y_test] = dm.create_input_from_top(time_lag)
 
     timesteps = x_train.shape[1]
     numfeatures = x_train.shape[2]
@@ -55,13 +64,13 @@ def myMain():
     #print(x_test[9])
     result = my_model.predict(x_test, batch_size=batch_size)
 
-    a = result[0];
-
     # [2024-01-17] SARA
-    # predicted = dm.getPredictedNormalizer().inverse_transform(result)
-    # y_test = dm.getPredictedNormalizer().inverse_transform(y_test)
-    predicted = dm.getPredictedNormalizer().inverse_transform(result.reshape(len(result), len(result[0])))
-    y_test = dm.getPredictedNormalizer().inverse_transform(y_test.reshape(len(y_test), len(y_test[0])))
+    predicted = dm.getPredictedNormalizer().inverse_transform(result)
+    # retrieve only the last element of each sequence (return_sequences=False)
+    y_test = dm.getPredictedNormalizer().inverse_transform(y_test[0:len(y_test),time_lag-1])
+    # predicted = dm.getPredictedNormalizer().inverse_transform(result.reshape(len(result), len(result[0])))
+    # y_test = dm.getPredictedNormalizer().inverse_transform(y_test.reshape(len(y_test), len(y_test[0]))[time_lag-1])
+
     print('predetto ', predicted)
     print('reale ', y_test)
     vediamo = mape(y_test, predicted)
