@@ -1,46 +1,21 @@
 import tensorflow as tf
 from pathlib import Path
-
 from keras.layers import Bidirectional
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, LayerNormalization
 from keras import backend as K
-from keras.optimizers import SGD
+from keras.optimizers import SGD, Adam
 from constants import *
 import sys
-
-class HyperParameters:
-
-    def __init__(self,hyperparameters):
-        self.timesteps = hyperparameters.get(TIME_LAG_LABEL)
-        self.numfeatures = hyperparameters.get(NUMFEATURES_LABEL)
-        self.dropout = hyperparameters.get(DROPOUT_LABEL)
-        self.nunits = hyperparameters.get(NUNITS_LABEL)
-        self.batch_size = hyperparameters.get(BATCH_SIZE_LABEL)
-        self.validation_split = hyperparameters.get(VALIDATION_SPLIT_LABEL)
-        self.epochs = hyperparameters.get(EPOCHS_LABEL)
-        self.numlayers =  hyperparameters.get(NUMLAYERS_LABEL)
-        self.datadescr =  hyperparameters.get(DATADESCR_LABEL)
-
-    def getFileNamePart(self):
-        filenamePart = TWOUNDERSCORE + NUMLAYERS_LABEL+ UNDERSCORE + str(self.numlayers)
-        filenamePart = filenamePart + TWOUNDERSCORE + NUNITS_LABEL + UNDERSCORE + str(self.nunits)
-        filenamePart = filenamePart + TWOUNDERSCORE + EPOCHS_LABEL + UNDERSCORE + str(self.epochs)
-        filenamePart = filenamePart + TWOUNDERSCORE + DROPOUT_LABEL + UNDERSCORE + str(self.dropout)
-        filenamePart = filenamePart + TWOUNDERSCORE + DATADESCR_LABEL + UNDERSCORE + str(self.datadescr)
-        filenamePart = filenamePart + TWOUNDERSCORE + NUMFEATURES_LABEL + UNDERSCORE + str(self.numfeatures)
-        return filenamePart
-
-
 class ModelManager:
 
     def __init__(self,sensor,hyperparams,reTrain=False,dirModelli='modelli'):
         self.__isTrained = False
-        self.__hyperparams = HyperParameters(hyperparams)
+        self.__hyperparams = hyperparams
         self.__filename = self.__composeFileName(sensor,dirModelli)
         self.__model = self.__initModel(reTrain)
 
-    def __generateModel(self):
+    '''def __generateModel(self):
         my_model = Sequential()
         my_model.add(LSTM(units=self.__hyperparams.nunits, return_sequences=True,
                           input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures)))
@@ -52,6 +27,25 @@ class ModelManager:
         # CHOSEN_LOSS = 'mean_squared_error'
         my_model.compile(optimizer=CHOSEN_OPTIMIZATION, loss=CHOSEN_LOSS, metrics=[MAPE_LABEL, MAE_LABEL, MSE_LABEL])
 
+        return my_model
+    '''
+    def __generateModel(self):
+        my_model = Sequential()
+        my_model.add(Bidirectional(LSTM(units=256, return_sequences=True, input_shape=(self.__hyperparams.timesteps, self.__hyperparams.numfeatures))))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Bidirectional(LSTM(units=128, return_sequences=True)))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Bidirectional(LSTM(units=64, return_sequences=True)))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Bidirectional(LSTM(units=32, return_sequences=False)))
+        #my_model.add(Dropout(self.__hyperparams.dropout))
+        my_model.add(Dense(units=1))
+        custom_optimizer = Adam(learning_rate=0.0001)
+        #my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_percentage_error', metrics=['mape', 'mae', 'mse'])
+        #my_model.compile(optimizer=custom_optimizer, loss='mean_squared_error',
+        #                 metrics=['mape', 'mae', 'mse'])
+        my_model.compile(optimizer=custom_optimizer, loss='mean_absolute_error',
+                         metrics=['mape', 'mae', 'mse'])
         return my_model
 
     def __initModel(self,reTrain):

@@ -1,4 +1,5 @@
 from modelEvaluation import ModelEvaluator
+from hyperParameters import HyperParameters
 from constants import *
 
 SENSORE = 4
@@ -13,7 +14,9 @@ validation_split = 0.1
 #default_epochs = 50
 #default_time_lag = 4
 #batch_size = 128
-
+#thisdropout = 0.2
+thisdropout = 0.0
+batch_size = 32
 
 def defineHyperParams(datadescr,time_lag=-1,epochs=-1):
     hyperparameterValues = {
@@ -30,7 +33,9 @@ def defineHyperParams(datadescr,time_lag=-1,epochs=-1):
         hyperparameterValues[TIME_LAG_LABEL] = time_lag
     if epochs > 0:
         hyperparameterValues[EPOCHS_LABEL] = epochs
-    return hyperparameterValues
+
+    result = HyperParameters(hyperparameterValues)
+    return result
 
 def execEval(datadescr='-',time_lag=-1,epochs=-1):
     hyperparameterValues = defineHyperParams(datadescr,time_lag=time_lag,epochs=-epochs)
@@ -60,6 +65,6 @@ if __name__ == '__main__':
             out = myMain(time_lag=timestep,epochs=epoch)
             print(str(out))    
     '''
-    out = myMain()
+    out = myMain(epochs = 400,time_lag = 7)
     print(str(out))
     print('finito')

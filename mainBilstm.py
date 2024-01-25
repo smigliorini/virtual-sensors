@@ -18,7 +18,8 @@ nunits = 256
 #thisdropout = 0.2
 thisdropout = 0.0
 
-shuffle = True
+# shuffle = True
+shuffle = False
 
 # with shuffled data 64 is better
 if shuffle:
