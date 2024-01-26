@@ -18,7 +18,7 @@ validation_split = 0.1
 thisdropout = 0.0
 batch_size = 32
 
-def defineHyperParams(datadescr,time_lag=-1,epochs=-1):
+def defineHyperParams(datadescr,time_lag=-1,epochs=-1,shuffle=True):
     hyperparameterValues = {
         BATCH_SIZE_LABEL: batch_size,
         VALIDATION_SPLIT_LABEL: validation_split,
@@ -27,7 +27,8 @@ def defineHyperParams(datadescr,time_lag=-1,epochs=-1):
         TIME_LAG_LABEL: default_time_lag,
         EPOCHS_LABEL: default_epochs,
         NUMLAYERS_LABEL: numlayers,
-        DATADESCR_LABEL:datadescr
+        DATADESCR_LABEL:datadescr,
+        DATASET_SPLIT_RANDOM_LABEL:shuffle
     }
     if time_lag >0:
         hyperparameterValues[TIME_LAG_LABEL] = time_lag
@@ -38,21 +39,28 @@ def defineHyperParams(datadescr,time_lag=-1,epochs=-1):
     return result
 
 def execEval(datadescr='-',time_lag=-1,epochs=-1):
-    hyperparameterValues = defineHyperParams(datadescr,time_lag=time_lag,epochs=-epochs)
-    compare = ModelEvaluator(hyperparameterValues, SENSORE,data_headers.get(datadescr))
-    sklearn_metrics_mape,predicted = compare.evaluate()
-    print('sklearn.metrics.mape ', sklearn_metrics_mape) 
-    return sklearn_metrics_mape
+    hyperparameterValues = defineHyperParams(datadescr,time_lag=time_lag,epochs=-epochs,shuffle=True)
+    compare = ModelEvaluator(hyperparameterValues, SENSORE,data_headers.get(datadescr),hyperparameterValues.shuffle)
+    sklearn_metrics_mape_shuffle,predicted_shuffle = compare.evaluate()
+
+    hyperparameterValues.shuffle=False
+    compare = ModelEvaluator(hyperparameterValues, SENSORE, data_headers.get(datadescr),hyperparameterValues.shuffle)
+    sklearn_metrics_mape_fromTop, predicted_fromTop = compare.evaluate()
+
+    print('sklearn.metrics.mape (shuffle) ', sklearn_metrics_mape_shuffle)
+    print('sklearn.metrics.mape (from top) ', sklearn_metrics_mape_fromTop)
+
+    return sklearn_metrics_mape_shuffle,sklearn_metrics_mape_fromTop
 
 def myMain(time_lag=-1,epochs=-1):
     result = {}
-    result['base'] = execEval(datadescr='base',time_lag=time_lag,epochs=-epochs)
+    result['base-shuffle'],result['base-fromTop'] = execEval(datadescr='base',time_lag=time_lag,epochs=-epochs)
     #
     # out['esteso'] = execEval(datadescr='esteso')
     #
-    result['meno_tempo'] = execEval(datadescr='meno_tempo',time_lag=time_lag,epochs=-epochs)
-    result['senza_distanza'] = execEval(datadescr='senza_distanza',time_lag=time_lag,epochs=-epochs)
-    result['senza_evja'] = execEval(datadescr='senza_evja',time_lag=time_lag,epochs=-epochs)
+    result['meno_tempo-shuffle'],result['meno_tempo-fromTop'] = execEval(datadescr='meno_tempo',time_lag=time_lag,epochs=-epochs)
+    result['senza_distanza-shuffle'],result['meno_tempo-fromTop'] = execEval(datadescr='senza_distanza',time_lag=time_lag,epochs=-epochs)
+    result['senza_evja-shuffle'],result['meno_tempo-fromTop'] = execEval(datadescr='senza_evja',time_lag=time_lag,epochs=-epochs)
     return result
 
 

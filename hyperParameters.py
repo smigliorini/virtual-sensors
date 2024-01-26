@@ -11,7 +11,7 @@ class HyperParameters:
         self.epochs = hyperparameters.get(EPOCHS_LABEL)
         self.numlayers =  hyperparameters.get(NUMLAYERS_LABEL)
         self.datadescr =  hyperparameters.get(DATADESCR_LABEL)
-
+        self.shuffle = hyperparameters.get(DATASET_SPLIT_RANDOM_LABEL)
     def getFileNamePart(self):
         filenamePart = TWOUNDERSCORE + NUMLAYERS_LABEL+ UNDERSCORE + str(self.numlayers)
         filenamePart = filenamePart + TWOUNDERSCORE + NUNITS_LABEL + UNDERSCORE + str(self.nunits)
@@ -19,6 +19,7 @@ class HyperParameters:
         filenamePart = filenamePart + TWOUNDERSCORE + DROPOUT_LABEL + UNDERSCORE + str(self.dropout)
         filenamePart = filenamePart + TWOUNDERSCORE + DATADESCR_LABEL + UNDERSCORE + str(self.datadescr)
         filenamePart = filenamePart + TWOUNDERSCORE + NUMFEATURES_LABEL + UNDERSCORE + str(self.numfeatures)
+        filenamePart = filenamePart + TWOUNDERSCORE + DATASET_SPLIT_RANDOM_LABEL + UNDERSCORE + str(self.shuffle)
         return filenamePart
 
     def toDict(self):
@@ -31,7 +32,8 @@ class HyperParameters:
             VALIDATION_SPLIT_LABEL: self.validation_split,
             EPOCHS_LABEL: self.epochs,
             NUMLAYERS_LABEL:self.numlayers,
-            DATADESCR_LABEL:self.datadescr
+            DATADESCR_LABEL:self.datadescr,
+            DATASET_SPLIT_RANDOM_LABEL:self.shuffle
         }
 
         return hyperparameterValues

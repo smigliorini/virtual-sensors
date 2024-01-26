@@ -13,12 +13,12 @@ class ModelEvaluator:
     '''
     ha come parametri il numero del sensore, gli iperparametri in una istanza della classe HyperParameters e un array di data_hearders
     '''
-    def __init__(self, hyperparameters, sensor,data_headers):
+    def __init__(self, hyperparameters, sensor,data_headers,shuffle):
         self.hyperparameters = hyperparameters
         self.__sensor = sensor
         self.__csvFileName = self.__generateFileName()
         self.__dataManager = self.__initDataManager(data_headers)
-        self.__x_train, self.__x_test, self.__y_train, self.__y_test = self.__create_dataset(data_headers)
+        self.__x_train, self.__x_test, self.__y_train, self.__y_test = self.__create_dataset(shuffle)
 
         self.__model = self.__initModel()
 
@@ -32,9 +32,14 @@ class ModelEvaluator:
         dm = DatasetManager(df, data_headers, data_header_index)
         return dm
 
-    def __create_dataset(self,data_headers):
+    def __create_dataset(self,shuffle):
         time_lag = self.hyperparameters.timesteps
-        [x_train, x_test, y_train, y_test] = self.__dataManager.create_input_from_top_shuffle(time_lag)
+        #[x_train, x_test, y_train, y_test] = self.__dataManager.create_input_from_top_shuffle(time_lag)
+        if shuffle:
+            [x_train, x_test, y_train, y_test] = self.__dataManager.create_input_from_top_shuffle(time_lag)
+        else:
+            [x_train, x_test, y_train, y_test] = self.__dataManager.create_input_from_top(time_lag)
+
         return x_train, x_test, y_train, y_test
 
     def __initModel(self,dirModelli=DIR_MODELLI):
