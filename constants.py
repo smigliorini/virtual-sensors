@@ -8,7 +8,8 @@ data_headers = {'base': data_header_base,
                'esteso': data_header_esteso,
                'meno_tempo':data_header_con_meno_tempo,
                'senza_distanza':data_header_senza_distanza,
-               'senza_evja':data_header_senza_evja}
+               'senza_evja':data_header_senza_evja
+                'data_header_solo_altri_dati':data_header_solo_altri_dati}
 data_header = data_header_base
 ###########################################################################
 DROPOUT_LABEL ='dropout'

@@ -50,15 +50,17 @@ class ModelManager:
 
     def __initModel(self,reTrain):
         my_file = Path(self.__filename)
-        if my_file.is_file():
-            my_model = tf.keras.models.load_model(self.__filename)
-            self.__isTrained = True
-            if reTrain:
-                self.__isTrained = False
-            return my_model
-        else:
+        if reTrain:
             my_model = self.__generateModel()
             return my_model
+        else:
+            if my_file.is_file():
+                my_model = tf.keras.models.load_model(self.__filename)
+                self.__isTrained = True
+                return my_model
+            else:
+                my_model = self.__generateModel()
+                return my_model
 
     def __composeFileName(self,sensor,dirModelli):
         filename = dirModelli + '/'+ LSTM_MODEL_LABEL + UNDERSCORE + SENSOR_LABEL + UNDERSCORE + str(sensor) + UNDERSCORE + self.__hyperparams.getFileNamePart()
